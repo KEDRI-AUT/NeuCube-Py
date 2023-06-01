@@ -34,7 +34,7 @@ To start using Neucube Py, you can refer to the [examples](examples/) directory,
 
 You can also try out a running example using Google Colab by clicking the button below:
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/your-username/python-neucube/blob/main/examples/neucube_demo.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1UOHahwu4VDsh-Qq2R2-syObrAatCJygX?usp=sharing)
 
 ## Usage
 
