@@ -57,7 +57,7 @@ out = res.simulate(X)
 # Extract state vectors from the spiking activity
 state_vec = SpikeCount.sample(out)
 
-# Perform predection and validation
+# Perform prediction and validation
 # ...
 
 ```
