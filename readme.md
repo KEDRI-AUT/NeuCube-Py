@@ -70,7 +70,7 @@ Before contributing, please read our [contributing guidelines](CONTRIBUTING.md) 
 
 ## License
 
-Neucube Py is licensed under the [MIT License](LICENSE).
+Neucube Py is licensed under the [GNU AGPLv3](LICENSE.md).
 
 ## Acknowledgments
 
