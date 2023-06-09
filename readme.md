@@ -25,7 +25,7 @@ Neucube Py is a Python implementation of the Neucube architecture, a spiking neu
 To use Neucube Py, you can clone this repository:
 
 ```bash
-git clone https://github.com/balkaransingh9/neucubepy.git
+git clone https://github.com/KEDRI-AUT/NeuCube-Py.git
 ```
 
 ## Getting Started
