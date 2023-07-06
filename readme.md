@@ -27,6 +27,10 @@ To use Neucube Py, you can clone this repository:
 ```bash
 git clone https://github.com/KEDRI-AUT/NeuCube-Py.git
 ```
+or pip install
+```bash
+pip install git+https://github.com/KEDRI-AUT/NeuCube-Py.git
+```
 
 ## Getting Started
 
