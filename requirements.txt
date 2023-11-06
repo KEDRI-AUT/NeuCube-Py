@@ -1,4 +1,7 @@
-torch
+torch+cu118
 tqdm
 numpy
 matplotlib
+jupyter
+pandas
+scikit-learn
