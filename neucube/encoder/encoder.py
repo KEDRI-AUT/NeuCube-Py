@@ -63,3 +63,35 @@ class Delta(Encoder):
         aux = torch.cat((sample[0].unsqueeze(0), sample))[:-1]
         spikes = torch.ones_like(sample) * (sample - aux >= self.threshold)
         return spikes
+
+
+class Probability(Encoder):
+    def __init__(self, iterations: int = 200):
+        """
+        Initializes the Probability encoder with a number of iterations.
+
+        Args:
+            iterations (int, optional): number of iterations to generate spikes. Defaults to 200.
+        """
+        self.iterations: int = iterations
+
+    def encode_dataset(self, dataset: torch.Tensor) -> torch.Tensor:
+        """
+        Encodes an input dataset using spike probability encoding.
+
+        Args:
+            dataset (torch.Tensor): Input dataset to be encoded.
+
+        Returns:
+            torch.Tensor: Encoded spike trains for the input dataset.
+        """
+        spikes = torch.zeros((dataset.size(0), self.iterations, dataset.size(1)))
+
+        for iteration in range(self.iterations):
+            random_values = torch.rand_like(dataset)
+            mask = (random_values < dataset).float()
+            spikes[:, iteration, :] = mask
+        return spikes
+
+    def encode(self, sample):
+        pass
