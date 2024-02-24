@@ -6,3 +6,4 @@ jupyter
 pandas
 scikit-learn
 nltk
+xgboost
