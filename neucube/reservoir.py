@@ -6,7 +6,7 @@ from .utils import print_summary
 from .training.stdp import STDP
 
 class Reservoir():
-  def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=1.2, l=1.6, c_in = 0.9, l_in = 1.2):
+  def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=1.2, l=1.6, c_in=0.9, l_in=1.2, use_mps=False):
     """
     Initializes the reservoir object.
 
@@ -24,7 +24,8 @@ class Reservoir():
     """
     self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu:0")
     # use Metal Performance Shaders (beta)
-    #self.device = torch.device("mps:0" if torch.backends.mps.is_available() else "cpu:0")
+    if torch.backends.mps.is_available() and use_mps is True:
+      self.device = torch.device("mps:0")
 
     if coordinates is None:
       self.n_neurons = math.prod(cube_shape)
