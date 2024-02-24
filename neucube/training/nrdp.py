@@ -3,13 +3,11 @@ from numpy.random import uniform as unif
 
 # NRDP implementation as per: https://ieeexplore.ieee.org/document/8118188
 class NRDP():
-    def __init__(self, device, n_neurons, min_a=0.0, max_a=0.901679611594126, gain_a=0.5428717518563672,
+    def __init__(self, min_a=0.0, max_a=0.901679611594126, gain_a=0.5428717518563672,
                  min_n=0.0, max_n=0.23001290732040292, gain_n=0.011660312977761912,
                  min_ga=0.0, max_ga=0.7554145024515596, gain_ga=0.3859076787035615,
                  min_gb=0.0, max_gb=0.7954714253083993, gain_gb=0.11032115434326673,
                  time_window=10, gaba_impact=0.01, gaba_rate=0.7):
-        self.device = device
-        self.n_neurons = n_neurons
         self.min_a = min_a
         self.max_a = max_a
         self.gain_a = gain_a
@@ -37,6 +35,10 @@ class NRDP():
 
     def _get_gaba_max(self):
         return self.max_ga if self._is_gaba_activated() else self.max_gb
+
+    def setup(self, device, n_neurons):
+        self.device = device
+        self.n_neurons = n_neurons
 
     def per_sample(self, s):
         self.firing_state = torch.zeros(self.n_neurons).to(self.device)

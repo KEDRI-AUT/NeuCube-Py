@@ -3,7 +3,7 @@ from tqdm import tqdm
 import math
 from .topology import small_world_connectivity
 from .utils import print_summary
-from neucube.training.stdp import STDP
+from .training.stdp import STDP
 
 class Reservoir():
   def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=1.2, l=1.6, c_in = 0.9, l_in = 1.2):
@@ -48,7 +48,7 @@ class Reservoir():
     self.w_latent = conn_mat.to(self.device)
     self.w_in = input_conn.to(self.device)
 
-  def simulate(self, X, mem_thr=0.1, refractory_period=5, train=True, learning_rule=STDP, verbose=True):
+  def simulate(self, X, mem_thr=0.1, refractory_period=5, train=True, learning_rule=STDP(), verbose=True):
     """
     Simulates the reservoir activity given input data.
 
@@ -63,11 +63,16 @@ class Reservoir():
     Returns:
         torch.Tensor: Spike activity of the reservoir neurons over time, of shape (batch_size, n_time, n_neurons).
     """
+    if train is True and learning_rule is None:
+      raise Exception("learning_rule must be provided if train is True")
+
     self.batch_size, self.n_time, self.n_features = X.shape
 
     spike_rec = torch.zeros(self.batch_size, self.n_time, self.n_neurons)
 
-    # iterate over each sample
+    if train is True:
+      learning_rule.setup(self.device, self.n_neurons)
+
     for s in tqdm(range(X.shape[0]), disable = not verbose):
 
       spike_latent = torch.zeros(self.n_neurons).to(self.device)
@@ -76,37 +81,31 @@ class Reservoir():
       refrac_count = torch.zeros(self.n_neurons).to(self.device)
       spike_times = torch.zeros(self.n_neurons).to(self.device)
 
-      if train is True and learning_rule is None:
-        #TODO: throw an exception here
-        print("")
+      if train is True:
+        learning_rule.per_sample(s)
 
-      _learning_rule = learning_rule(self.device, self.n_neurons)
-      _learning_rule.per_sample(self.n_neurons)
-
-      # iterate over each row of data (time slice)
       for k in range(self.n_time):
-        spike_in = X[s,k,:] # one row of data i.e. a time slice
+        spike_in = X[s,k,:]
         spike_in = spike_in.to(self.device)
 
         refrac[refrac_count < 1] = 1
 
-        # calculate membrane potential
-        I = torch.sum(self.w_in*spike_in, axis=1)+torch.sum(self.w_latent*spike_latent, axis=1) # current
-        mem_poten = mem_poten*torch.exp(torch.tensor(-(1/40)))*(1-spike_latent)+(refrac*I) # LIF
+        I = torch.sum(self.w_in*spike_in, axis=1)+torch.sum(self.w_latent*spike_latent, axis=1)
+        mem_poten = mem_poten*torch.exp(torch.tensor(-(1/40)))*(1-spike_latent)+(refrac*I)
 
-        # output spike
-        spike_latent[mem_poten >= mem_thr] = 1 # spike
-        spike_latent[mem_poten < mem_thr] = 0 # no spike
+        spike_latent[mem_poten >= mem_thr] = 1
+        spike_latent[mem_poten < mem_thr] = 0
 
-        refrac[mem_poten >= mem_thr] = 0 # reset after spike emitted
+        refrac[mem_poten >= mem_thr] = 0
         refrac_count[mem_poten >= mem_thr] = refractory_period
         refrac_count = refrac_count-1
 
         if train is True:
-          pre_updates, pos_updates = _learning_rule.train(k-spike_times, self.w_latent, spike_latent)
+          learning_rule.per_time_slice(s, k)
+          pre_updates, pos_updates = learning_rule.train(k-spike_times, self.w_latent, spike_latent)
           self.w_latent += pre_updates
           self.w_latent += pos_updates
-          _learning_rule.reset()
+          learning_rule.reset()
 
         spike_times[mem_poten >= mem_thr] = k
         

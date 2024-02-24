@@ -1,12 +1,14 @@
 import torch
 
 class STDP():
-    def __init__(self, device, n_neurons, tau_pos=0.0001, tau_neg=-0.01, t_constant=3):
-        self.device = device
-        self.n_neurons = n_neurons
+    def __init__(self, tau_pos=0.0001, tau_neg=-0.01, t_constant=3):
         self.tau_pos = tau_pos
         self.tau_neg = tau_neg
         self.t_constant = t_constant
+
+    def setup(self, device, n_neurons):
+        self.device = device
+        self.neurons = n_neurons
 
     def per_sample(self, s):
         pass
