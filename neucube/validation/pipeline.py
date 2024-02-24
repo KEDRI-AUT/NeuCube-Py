@@ -63,3 +63,8 @@ class Pipeline():
         self.state_test = state
         pred = self.classifier.predict(state)
         return pred
+
+    def train_reservoir(self, X_train, train=True):
+        s_act = self.res_model.simulate(X_train, train=train, verbose=False)
+        state = self.sampling_method.sample(s_act)
+        return state
