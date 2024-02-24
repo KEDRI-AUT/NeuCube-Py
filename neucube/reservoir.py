@@ -21,9 +21,9 @@ class Reservoir():
         l (float): Parameter controlling the connectivity of the reservoir.
         c_in (float): Parameter controlling the connectivity of the input neurons.
         l_in (float): Parameter controlling the connectivity of the input neurons.
+        use_mps (bool): use Metal Performance Shaders (MPS) for Apple Silicon (if available).
     """
     self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu:0")
-    # use Metal Performance Shaders (beta)
     if torch.backends.mps.is_available() and use_mps is True:
       self.device = torch.device("mps:0")
 
@@ -63,9 +63,12 @@ class Reservoir():
 
     Returns:
         torch.Tensor: Spike activity of the reservoir neurons over time, of shape (batch_size, n_time, n_neurons).
+
+    Raises:
+        Exception: If learning rule implementation is not specified and training is enabled
     """
     if train is True and learning_rule is None:
-      raise Exception("learning_rule must be provided if train is True")
+      raise Exception("learning rule implementation must be specified if training is enabled")
 
     self.batch_size, self.n_time, self.n_features = X.shape
 
