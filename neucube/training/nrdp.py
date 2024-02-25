@@ -110,17 +110,17 @@ class NRDP():
                                       torch.maximum(torch.full_like(self.a_t1, self.min_a), self.a_t1-(self.gaba_impact*self._get_gaba_gain())),
                                       self.a_t1))
         self.firing_state[spike_latent < 1] += 1
-        # hold A(t) at MAX_A for duration of time window
+        # hold A(t) at maximum level for duration of time window
         a_t = torch.where(a_t >= self.max_a,
                           torch.where(self.a_state < self.time_window, self.max_a, self.a_t1),
                           self.a_t1)
         self.a_state[a_t >= self.max_a] += 1
-        # calculate N(t) when A(t) reaches MAX_A and Sij = 1
+        # calculate N(t) when A(t) reaches maximum level and Sij = 1
         n_t = torch.where(a_t >= self.max_a,
                           torch.where(spike_latent > 0,
                                       torch.minimum(torch.full_like(self.n_t1, self.max_n), self.n_t1+self.gain_n),
                                       torch.maximum(torch.full_like(self.n_t1, self.min_n), self.n_t1-self.gain_n)),
-                          self.min_n) # N(t) is not activated unless A(t) >= MAX_A
+                          self.min_n) # otherwise NMDAR is not activated
         # calculate G(t) when Sij = 1
         g_t = torch.where(spike_latent > 0,
                           torch.maximum(torch.full_like(self.g_t1, self._get_gaba_min()), self.g_t1-self._get_gaba_gain()),
