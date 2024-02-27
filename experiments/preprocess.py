@@ -29,12 +29,13 @@ class TextPrep:
         preprocessed_text = ' '.join(stems)
         return preprocessed_text
 
-    def preprocess_dataset(self, sklearn_dataset, lsa=True) -> tuple[FloatTensor, FloatTensor]:
+    def preprocess_dataset(self, sklearn_dataset, lsa=True, spikes=True) -> tuple[FloatTensor, FloatTensor]:
         train_x = self.vectorizer.fit_transform(sklearn_dataset.data)
         if lsa:
             train_x = self.svd.fit_transform(train_x)
-        train_x = FloatTensor(train_x)
-        train_x = self.encoder.encode_dataset(train_x)
+        train_x = FloatTensor(train_x).relu()  # no negative values
+        if spikes:
+            train_x = self.encoder.encode_dataset(train_x)
 
         train_y = sklearn_dataset.target
         train_y = FloatTensor(train_y)

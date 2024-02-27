@@ -1,3 +1,6 @@
+from torch.nn.functional import normalize
+
+
 class Pipeline():
     """
     Neucube pipeline consisting of a reservoir, a sampling method, and a classifier.
@@ -46,6 +49,7 @@ class Pipeline():
         """
         s_act = self.res_model.simulate(X_train, train=train, verbose=False)
         state = self.sampling_method.sample(s_act)
+        state = normalize(state)
         self.classifier.fit(state, y_train)
 
     def predict(self, X_test):
@@ -60,6 +64,7 @@ class Pipeline():
         """
         s_act = self.res_model.simulate(X_test, train=False, verbose=False)
         state = self.sampling_method.sample(s_act)
+        state = normalize(state)
         self.state_test = state
         pred = self.classifier.predict(state)
         return pred
@@ -67,4 +72,4 @@ class Pipeline():
     def train_reservoir(self, X_train, train=True):
         s_act = self.res_model.simulate(X_train, train=train, verbose=False)
         state = self.sampling_method.sample(s_act)
-        return state
+        return normalize(state)
