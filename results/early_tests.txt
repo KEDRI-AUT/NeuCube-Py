@@ -1,0 +1,60 @@
+cats = ['comp.graphics','sci.med', 'rec.motorcycles']
+stemming: strip_accents="ascii", lowercase=True, preprocessor=preprocess_and_stem
+svd n_components = 1000
+random_state=123
+Probability(iterations=50)
+
+4it [02:38, 39.50s/it]
+0.6635672020287405
+[[259  53  77]
+ [ 59 267  72]
+ [ 74  63 259]]
+
+-------------------------------------------------------------------------------
+cats = ['comp.graphics','sci.med', 'rec.motorcycles']
+stemming: strip_accents="ascii", lowercase=True, preprocessor=preprocess_and_stem
+svd n_components = 5000
+random_state=123
+Probability(iterations=50)
+
+4it [02:34, 38.75s/it]
+0.6686390532544378
+[[269  36  84]
+ [ 54 273  71]
+ [ 81  66 249]]
+
+-----------------------------------------------------
+as previous
++ training set instead of test set
+stop_words = ["a", "an", "and", "are","as","at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not","of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with"]
+
+4it [03:52, 58.16s/it]
+0.642454954954955
+[[400 110  74]
+ [ 96 377 125]
+ [ 96 134 364]]
+
+-----------------------------------------------------
+stop words as previous
+cats = ['comp.graphics','sci.med', 'rec.motorcycles', 'talk.politics.guns', 'soc.religion.christian']
+stemming: strip_accents="ascii", lowercase=True, preprocessor=preprocess_and_stem
+svd n_components = 10000
+random_state=123
+Probability(iterations=50)
+
+4it [07:08, 107.11s/it]
+0.4881889763779528
+[[265 105 106  57  51]
+ [102 266  81  88  61]
+ [ 95  94 278  74  53]
+ [ 69  74  72 323  61]
+ [ 58  74  55  65 294]]
+
+-----------------------------------------------------
+ XGBoost, 2 cats
+ 4it [25:51, 387.77s/it]
+0.8565365025466893
+[[537  47]
+ [122 472]]
+
+ -----------------------------------------------------
