@@ -1,4 +1,4 @@
-from neucube.training.stdp import STDP
+from neucube.training import STDP
 
 class Pipeline():
     """
@@ -40,8 +40,10 @@ class Pipeline():
         Args:
             X_train: The input data for training.
             y_train: The target labels for training.
+            learning_rule (LearningRule): The learning rule implementation to use for training.
             train: Optional boolean indicating if the reservoir should be trained or not.
                    Default is False.
+            verbose (bool): Flag indicating whether to display progress during simulation.
 
         Returns:
             None
