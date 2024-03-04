@@ -1,5 +1,4 @@
 import torch
-from numpy.random import uniform as unif
 
 class NRDP():
     def __init__(self, min_a=0.0, max_a=0.901679611594126, gain_a=0.5428717518563672,
@@ -44,18 +43,6 @@ class NRDP():
         self.gaba_impact = gaba_impact
         self.gaba_rate = gaba_rate
 
-    def _is_gaba_activated(self):
-        return unif(0, 1) < self.gaba_rate
-
-    def _get_gaba_gain(self):
-        return self.gain_ga if self._is_gaba_activated() else self.gain_gb
-
-    def _get_gaba_min(self):
-        return self.min_ga if self._is_gaba_activated() else self.min_gb
-
-    def _get_gaba_max(self):
-        return self.max_ga if self._is_gaba_activated() else self.max_gb
-
     def setup(self, device, n_neurons):
         """
         Hook for performing setup tasks.
@@ -88,15 +75,17 @@ class NRDP():
             s (int): The sample number.
             k (int): The time-slice number.
         """
-        pass
+        self.gaba_gains = torch.where(torch.rand((self.n_neurons,)) < self.gaba_rate, self.gain_ga, self.gain_gb)
+        self.gaba_mins = torch.where(torch.rand((self.n_neurons,)) < self.gaba_rate, self.min_ga, self.min_gb)
+        self.gaba_maxes = torch.where(torch.rand((self.n_neurons,)) < self.gaba_rate, self.max_ga, self.max_gb)
 
-    def train(self, aux, _, spike_latent):
+    def train(self, aux, w_latent, spike_latent):
         """
         Implements the NRDP learning rule as per: https://ieeexplore.ieee.org/document/8118188.
 
         Parameters:
             aux (torch.Tensor): Element-wise time since last spike.
-            _ (torch.Tensor): Ignored parameter.
+            w_latent (torch.Tensor): Output weights.
             spike_latent (torch.Tensor): Output spikes.
         Returns:
             pre_updates (torch.Tensor): Pre-synaptic updates.
@@ -107,12 +96,12 @@ class NRDP():
                           torch.minimum(torch.full_like(self.a_t1, self.max_a), self.a_t1+self.gain_a),
                           # calculate A(t) when Sij = 0 for the length of time window
                           torch.where(self.firing_state >= self.time_window,
-                                      torch.maximum(torch.full_like(self.a_t1, self.min_a), self.a_t1-(self.gaba_impact*self._get_gaba_gain())),
+                                      torch.maximum(torch.full_like(self.a_t1, self.min_a), self.a_t1-(self.gaba_impact*self.gaba_gains)),
                                       self.a_t1))
         self.firing_state[spike_latent < 1] += 1
         # hold A(t) at maximum level for duration of time window
         a_t = torch.where(a_t >= self.max_a,
-                          torch.where(self.a_state < self.time_window, self.max_a, self.a_t1),
+                          torch.where(self.a_state <= self.time_window, self.max_a, self.a_t1),
                           self.a_t1)
         self.a_state[a_t >= self.max_a] += 1
         # calculate N(t) when A(t) reaches maximum level and Sij = 1
@@ -123,18 +112,21 @@ class NRDP():
                           self.min_n) # otherwise NMDAR is not activated
         # calculate G(t) when Sij = 1
         g_t = torch.where(spike_latent > 0,
-                          torch.maximum(torch.full_like(self.g_t1, self._get_gaba_min()), self.g_t1-self._get_gaba_gain()),
-                          torch.minimum(torch.full_like(self.g_t1, self._get_gaba_max()), self.g_t1+self._get_gaba_gain()*aux))
+                          torch.maximum(self.gaba_mins, self.g_t1-self.gaba_gains),
+                          torch.minimum(self.gaba_maxes, self.g_t1+(self.gaba_gains*aux)))
 
         self.a_t1 = a_t
         self.n_t1 = n_t
         self.g_t1 = g_t
 
-        return torch.zeros(self.n_neurons, self.n_neurons), (n_t + a_t) - g_t  # Wij
+        pre_updates = torch.zeros(self.n_neurons, self.n_neurons)
+        pos_updates = ((n_t + a_t) - g_t)*torch.gt(w_latent*spike_latent, 0).int()
+
+        return pre_updates, pos_updates
 
     def reset(self):
         """
         Hook for performing reset tasks.
         """
-        self.firing_state[self.firing_state >= self.time_window] = 0
-        self.a_state[self.a_state >= self.time_window] = 0
+        self.firing_state[self.firing_state > self.time_window] = 0
+        self.a_state[self.a_state > self.time_window] = 0
