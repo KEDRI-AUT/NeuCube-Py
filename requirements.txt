@@ -2,3 +2,5 @@ torch
 tqdm
 numpy
 matplotlib
+pandas
+scikit-learn

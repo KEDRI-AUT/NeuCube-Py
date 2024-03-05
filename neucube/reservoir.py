@@ -3,9 +3,10 @@ from tqdm import tqdm
 import math
 from .topology import small_world_connectivity
 from .utils import print_summary
+from .training import STDP
 
 class Reservoir():
-  def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=1.2, l=1.6, c_in = 0.9, l_in = 1.2):
+  def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=1.2, l=1.6, c_in=0.9, l_in=1.2, use_mps=False):
     """
     Initializes the reservoir object.
 
@@ -20,8 +21,11 @@ class Reservoir():
         l (float): Parameter controlling the connectivity of the reservoir.
         c_in (float): Parameter controlling the connectivity of the input neurons.
         l_in (float): Parameter controlling the connectivity of the input neurons.
+        use_mps (bool): use Metal Performance Shaders (MPS) for Apple Silicon (if available).
     """
     self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu:0")
+    if torch.backends.mps.is_available() and use_mps is True:
+      self.device = torch.device("mps:0")
 
     if coordinates is None:
       self.n_neurons = math.prod(cube_shape)
@@ -45,7 +49,7 @@ class Reservoir():
     self.w_latent = conn_mat.to(self.device)
     self.w_in = input_conn.to(self.device)
 
-  def simulate(self, X, mem_thr=0.1, refractory_period=5, train=True, verbose=True):
+  def simulate(self, X, mem_thr=0.1, refractory_period=5, train=True, learning_rule=STDP(), verbose=True):
     """
     Simulates the reservoir activity given input data.
 
@@ -54,14 +58,24 @@ class Reservoir():
         mem_thr (float): Membrane threshold for spike generation.
         refractory_period (int): Refractory period after a spike.
         train (bool): Flag indicating whether to perform online training of the reservoir.
+        learning_rule (LearningRule): The learning rule implementation to use for training.
         verbose (bool): Flag indicating whether to display progress during simulation.
 
     Returns:
         torch.Tensor: Spike activity of the reservoir neurons over time, of shape (batch_size, n_time, n_neurons).
+
+    Raises:
+        Exception: If learning rule implementation is not specified and training is enabled
     """
+    if train is True and learning_rule is None:
+      raise Exception("learning rule implementation must be specified if training is enabled")
+
     self.batch_size, self.n_time, self.n_features = X.shape
 
     spike_rec = torch.zeros(self.batch_size, self.n_time, self.n_neurons)
+
+    if train is True:
+      learning_rule.setup(self.device, self.n_neurons)
 
     for s in tqdm(range(X.shape[0]), disable = not verbose):
 
@@ -71,8 +85,10 @@ class Reservoir():
       refrac_count = torch.zeros(self.n_neurons).to(self.device)
       spike_times = torch.zeros(self.n_neurons).to(self.device)
 
-      for k in range(self.n_time):
+      if train is True:
+        learning_rule.per_sample(s)
 
+      for k in range(self.n_time):
         spike_in = X[s,k,:]
         spike_in = spike_in.to(self.device)
 
@@ -88,16 +104,12 @@ class Reservoir():
         refrac_count[mem_poten >= mem_thr] = refractory_period
         refrac_count = refrac_count-1
 
-        if train == True:
-          t_constant = 3
-          self.aux = k-spike_times
-          self.pre_w = 0.0001*torch.exp(-self.aux/t_constant)*torch.gt(self.aux,0).int()
-          self.pos_w = -0.01*torch.exp(-self.aux/t_constant)*torch.gt(self.aux,0).int()
-          pre_updates = self.pre_w*torch.gt((self.w_latent.T*spike_latent).T, 0).int()
-          pos_updates = self.pos_w*torch.gt(self.w_latent*spike_latent, 0).int()
-
+        if train is True:
+          learning_rule.per_time_slice(s, k)
+          pre_updates, pos_updates = learning_rule.train(k-spike_times, self.w_latent, spike_latent)
           self.w_latent += pre_updates
           self.w_latent += pos_updates
+          learning_rule.reset()
 
         spike_times[mem_poten >= mem_thr] = k
         

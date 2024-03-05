@@ -1,3 +1,5 @@
+from neucube.training import STDP
+
 class Pipeline():
     """
     Neucube pipeline consisting of a reservoir, a sampling method, and a classifier.
@@ -31,20 +33,22 @@ class Pipeline():
         self.sampling_method = sampling_method
         self.classifier = classifier
 
-    def fit(self, X_train, y_train, train=False):
+    def fit(self, X_train, y_train, train=False, learning_rule=STDP(), verbose=False):
         """
         Trains the pipeline using the provided input data and target labels.
 
         Args:
             X_train: The input data for training.
             y_train: The target labels for training.
+            learning_rule (LearningRule): The learning rule implementation to use for training.
             train: Optional boolean indicating if the reservoir should be trained or not.
                    Default is False.
+            verbose (bool): Flag indicating whether to display progress during simulation.
 
         Returns:
             None
         """
-        s_act = self.res_model.simulate(X_train, train=train, verbose=False)
+        s_act = self.res_model.simulate(X_train, train=train, learning_rule=learning_rule, verbose=verbose)
         state = self.sampling_method.sample(s_act)
         self.classifier.fit(state, y_train)
 
