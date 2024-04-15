@@ -21,6 +21,6 @@ def small_world_connectivity(dist, c, l):
     conn_prob = c * torch.exp(-(dist_norm / l) ** 2)
 
     # Create the input connectivity matrix by selecting connections based on probability
-    input_conn = torch.where(conn_prob < torch.rand_like(conn_prob), conn_prob, torch.zeros_like(conn_prob))
+    input_conn = torch.where(torch.rand_like(conn_prob) < conn_prob, conn_prob, torch.zeros_like(conn_prob)).fill_diagonal_(0)
 
     return input_conn

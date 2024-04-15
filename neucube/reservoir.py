@@ -6,7 +6,7 @@ from .utils import print_summary
 from .training import STDP
 
 class Reservoir():
-  def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=1.2, l=1.6, c_in=0.9, l_in=1.2, use_mps=False):
+  def __init__(self, cube_shape=(10,10,10), inputs=None, coordinates=None, mapping=None, c=0.4, l=0.169, c_in=0.9, l_in=1.2, use_mps=False):
     """
     Initializes the reservoir object.
 
@@ -30,12 +30,12 @@ class Reservoir():
     if coordinates is None:
       self.n_neurons = math.prod(cube_shape)
       x, y, z = torch.meshgrid(torch.linspace(0, 1, cube_shape[0]), torch.linspace(0, 1, cube_shape[1]), torch.linspace(0, 1, cube_shape[2]), indexing='xy')
-      pos = torch.stack([x.flatten(), y.flatten(), z.flatten()], dim=1)
+      self.pos = torch.stack([x.flatten(), y.flatten(), z.flatten()], dim=1).to(self.device)
     else:
       self.n_neurons = coordinates.shape[0]
-      pos = coordinates
+      self.pos = coordinates
 
-    dist = torch.cdist(pos, pos)
+    dist = torch.cdist(self.pos, self.pos)
     conn_mat = small_world_connectivity(dist, c=c, l=l) / 100
     inh_n = torch.randint(self.n_neurons, size=(int(self.n_neurons*0.2),))
     conn_mat[:, inh_n] = -conn_mat[:, inh_n]
