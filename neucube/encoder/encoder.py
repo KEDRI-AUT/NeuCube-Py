@@ -62,3 +62,26 @@ class Delta(Encoder):
     aux = torch.cat((sample[0].unsqueeze(0), sample))[:-1]
     spikes = torch.ones_like(sample) * (sample - aux >= self.threshold)
     return spikes
+
+class StepForward(Encoder):
+  def __init__(self, threshold=0.1):
+    """
+    Initializes the StepForward encoder with a threshold value.
+
+    Args:
+      threshold (float, optional): Threshold value for spike generation. Defaults to 0.1.
+    """
+    super().__init__()
+    self.threshold = threshold
+
+  def encode(self, sample):
+    spikes = torch.zeros_like(sample, dtype=torch.int8)
+    base = sample[0]
+    for t in range(1, sample.size(0)):
+      if sample[t] >= base + self.threshold:
+        spikes[t] = 1
+        base += self.threshold
+      elif sample[t] <= base - self.threshold:
+        spikes[t] = -1
+        base -= self.threshold
+    return spikes
