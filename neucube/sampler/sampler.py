@@ -43,7 +43,136 @@ class SpikeCount(Sampler):
         """
         return spike_activity.sum(axis=1)
 
+class MeanFiringRate(Sampler):
+    """
+    Sampler that calculates the mean firing rate from spike activity.
+    """
 
+    def __init__(self):
+        super().__init__()
+
+    def sample(self, spike_activity):
+        """
+        Calculates the mean firing rate from spike activity.
+
+        Parameters:
+            spike_activity: Spike activity tensor or array-like object.
+
+        Returns:
+            State vectors (mean firing rate for each sample).
+        """
+        return spike_activity.mean(axis=1)
+
+import torch
+
+class Binning(Sampler):
+    """
+    Sampler that calculates the temporal binning from spike activity.
+    """
+
+    def __init__(self, bin_size=10):
+        """
+        Initializes the TemporalBinning sampler.
+
+        Parameters:
+            bin_size (int): Size of the bin (default: 10).
+        """
+        self.bin_size = bin_size
+
+    def sample(self, spike_activity):
+        """
+        Calculates the temporal binning from spike activity.
+
+        Parameters:
+            spike_activity (torch.Tensor): Spike activity tensor or array-like object.
+
+        Returns:
+            torch.Tensor: State vectors (temporal binning for each sample).
+        """
+        if not isinstance(spike_activity, torch.Tensor):
+            spike_activity = torch.tensor(spike_activity)
+
+        # Determine the length of spike_activity and the necessary padding
+        num_time_points = spike_activity.size(1)
+        remainder = num_time_points % self.bin_size
+
+        if remainder != 0:
+            padding = self.bin_size - remainder
+            spike_activity = torch.nn.functional.pad(spike_activity, (0, padding))
+
+        binned_data = spike_activity.unfold(1, self.bin_size, self.bin_size).sum(dim=2)
+        flat_binned = binned_data.view(binned_data.size(0), -1)        
+        return flat_binned
+
+class TemporalBinning(Sampler):
+    """
+    Sampler that calculates the temporal binning from spike activity.
+    """
+
+    def __init__(self, bin_size=10):
+        """
+        Initializes the TemporalBinning sampler.
+
+        Parameters:
+            bin_size (int): Size of the bin (default: 10).
+        """
+        self.bin_size = bin_size
+
+    def sample(self, spike_activity):
+        """
+        Calculates the temporal binning from spike activity.
+
+        Parameters:
+            spike_activity (torch.Tensor): Spike activity tensor or array-like object.
+
+        Returns:
+            torch.Tensor: State vectors (temporal binning for each sample).
+        """
+        if not isinstance(spike_activity, torch.Tensor):
+            spike_activity = torch.tensor(spike_activity)
+
+        num_time_points = spike_activity.size(1)
+        remainder = num_time_points % self.bin_size
+
+        if remainder != 0:
+            padding = self.bin_size - remainder
+            spike_activity = torch.nn.functional.pad(spike_activity, (0, 0, 0, padding))  # Correct padding
+
+        reshaped = spike_activity.reshape(spike_activity.size(0), -1, self.bin_size, spike_activity.size(2))
+        binned_data = reshaped.sum(dim=2)
+
+        flat_binned = binned_data.view(binned_data.size(0), -1)
+        return flat_binned
+
+
+class ISIstats(Sampler):
+    """
+    Sampler that calculates the interspike interval statistics from spike activity.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def sample(self, spike_activity):
+        """
+        Calculates the interspike interval statistics from spike activity.
+
+        Parameters:
+            spike_activity: Spike activity tensor or array-like object.
+
+        Returns:
+            State vectors (interspike interval statistics for each sample).
+        """
+        time_steps = torch.arange(spike_activity.shape[1]).unsqueeze(0).unsqueeze(2).expand(spike_activity.shape[0], -1, spike_activity.shape[2])
+        spike_indices = time_steps * spike_activity
+        spike_indices[spike_indices == 0] = float('inf')
+        sorted_spike_indices, _ = torch.sort(spike_indices, dim=1)
+        isi = torch.diff(sorted_spike_indices, dim=1)
+        isi[isi == float('inf')] = float('nan')
+        isi_mean = torch.nanmean(isi, dim=1)
+        isi_mean[torch.isnan(isi_mean)] = -1
+        return isi_mean
+    
 class DeSNN(Sampler):
     """
     DeSNN Sampler to sample state vectors based on spike activity.
