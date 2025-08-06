@@ -283,4 +283,4 @@ This routine:
 
 ---
 
-**Happy spiking!** Feel free to customize encoders, connectivity, samplers, and classifiers to suit your domain-specific data and tasks.
+Feel free to customize encoders, connectivity, samplers, and classifiers to suit your domain-specific data and tasks!!
