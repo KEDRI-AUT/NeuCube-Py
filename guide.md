@@ -1,6 +1,6 @@
 # NeuCube‑Py Tutorial
 
-This tutorial provides a comprehensive guide to NeuCube‑Py, a Python library for spiking‑reservoir computing on time‑series data. You’ll learn:
+This tutorial provides a introductory guide to NeuCube‑Py, a Python library for simulating spiking‑reservoir neural networks. You’ll learn:
 
 1. **Overview & Purpose**
 2. **Typical Workflow**
@@ -12,7 +12,7 @@ This tutorial provides a comprehensive guide to NeuCube‑Py, a Python library f
 
 ## 1. Overview & Purpose
 
-NeuCube‑Py enables researchers and practitioners to rapidly prototype spiking‑neuron reservoir models on sequential data (e.g., EEG, sensor streams, financial time‑series). Key advantages:
+NeuCube‑Py enables researchers and practitioners to rapidly prototype spiking‑reservoir neural networks on sequential data (e.g., EEG, sensor streams, financial time‑series). Key advantages:
 
 * **Biologically inspired**: Leverages spiking neurons and online learning (STDP).
 * **Flexible**: Swap encoders, reservoir topologies, samplers, and classifiers.
