@@ -1,6 +1,6 @@
 # NeuCube‑Py Tutorial
 
-This tutorial provides a comprehensive guide to NeuCube‑Py, a Python library for simulating spiking reservoirs. You’ll learn:
+This tutorial provides a introduction to NeuCube‑Py, a Python library for simulating spiking reservoirs. You’ll learn:
 
 1. **Overview & Purpose**
 2. **Module Breakdown & Parameters**
