@@ -44,8 +44,6 @@ Below is the end-to-end conceptual pipeline in NeuCube-Py. Each step transforms 
 5. **Readout / Classification**
    Use a simple linear or nonlinear classifier on the state vectors. Because the reservoir has already untangled complex temporal patterns into a high-dimensional space, even a basic readout can achieve strong performance.
 
-   * API: `.fit(X_state, y)` and `.predict(X_state)`.
-
 Although illustrated for time-series, any data modality (images, audio, video) can be encoded as spike trains—making NeuCube-Py a versatile framework for spiking-reservoir computing.
 
 ## 3. Module Breakdown & Parameters
