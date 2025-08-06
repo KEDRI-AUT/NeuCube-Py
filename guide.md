@@ -1,6 +1,6 @@
 # NeuCube‑Py Tutorial
 
-This tutorial provides a introductory guide to NeuCube‑Py, a Python library for simulating spiking‑reservoir neural networks. You’ll learn:
+This tutorial provides an introductory guide to NeuCube‑Py, a Python library for simulating spiking‑reservoir neural networks. You’ll learn:
 
 1. **Overview & Purpose**
 2. **Typical Workflow**
