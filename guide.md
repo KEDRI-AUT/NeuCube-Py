@@ -8,7 +8,6 @@ This tutorial provides a comprehensive guide to NeuCube‑Py, a Python library f
 4. **Step‑by‑Step Quick Start**
 5. **Cross‑Validation & Hyperparameter Optimization**
 
----
 
 ## 1. Overview & Purpose
 
@@ -17,10 +16,6 @@ NeuCube‑Py enables researchers and practitioners to rapidly prototype spiking�
 * **Biologically inspired**: Leverages spiking neurons and online learning (STDP).
 * **Flexible**: Swap encoders, reservoir topologies, samplers, and classifiers.
 * **Scalable**: GPU/MPS support for large reservoirs.
-
-Use cases include: EEG classification, anomaly detection in sensor data, forecasting, and pattern recognition.
-
----
 
 ## 2. Typical Workflow
 
@@ -53,8 +48,6 @@ Below is the end-to-end conceptual pipeline in NeuCube-Py. Each step transforms 
 
 Although illustrated for time-series, any data modality (images, audio, video) can be encoded as spike trains—making NeuCube-Py a versatile framework for spiking-reservoir computing.
 
----
-
 ## 3. Module Breakdown & Parameters
 
 In this section, we break down each core module of NeuCube-Py, describe its purpose, key components, and list all configurable parameters.
@@ -72,8 +65,6 @@ Transform continuous-valued time series into spike trains.
 | Parameter   | Type  | Default | Description                                                        |
 | ----------- | ----- | ------- | ------------------------------------------------------------------ |
 | `threshold` | float | 0.1     | Minimum change required to generate a spike (absolute difference). |
-
----
 
 ### 3.2 Reservoir
 
@@ -95,8 +86,6 @@ A 3D spiking-neuron network with recurrent small-world connectivity.
 | `c_in`, `l_in` | float         | 0.9, 1.2   | Input→reservoir connectivity parameters (analogous to `c` and `l`).                    |
 | `use_mps`      | bool          | False      | Use Apple MPS backend if available.                                                    |
 
----
-
 ### 3.3 Topology
 
 Functions for generating reservoir and input connectivity.
@@ -111,8 +100,6 @@ Functions for generating reservoir and input connectivity.
 | `dist`    | Tensor (N×N) | Pairwise Euclidean distances between neurons.                |
 | `c`       | float        | Maximum connection probability (peak of Gaussian).           |
 | `l`       | float        | Decay rate (spread) of connection probability with distance. |
-
----
 
 ### 3.4 Samplers
 
@@ -136,8 +123,6 @@ Summarize reservoir spike trains into fixed-length state vectors.
 | `ISIstats`        | —                                        | (batch\_size, n\_neurons)                              |
 | `DeSNN`           | `alpha`, `mod`, `drift_up`, `drift_down` | (batch\_size, n\_neurons)                              |
 
----
-
 ### 3.5 Pipeline
 
 High‑level API combining reservoir, sampler, and sklearn classifier.
@@ -154,8 +139,6 @@ High‑level API combining reservoir, sampler, and sklearn classifier.
 | `sampling_method` | `Sampler` instance     | Feature extractor (e.g., `SpikeCount()`)                     |
 | `classifier`      | scikit‑learn estimator | Any sklearn-compatible model (e.g., SVM, LogisticRegression) |
 
----
-
 ### 3.6 Utils & Visualization
 
 Helper functions for inspection and plotting.
@@ -166,8 +149,6 @@ Helper functions for inspection and plotting.
   * `print_summary(info_ls)` – Tabular summary in console.
   * `spike_raster(spike_activity)` – 2D raster plot of spikes.
   * `plot_connections(reservoir)` – 3D plot of excitatory/inhibitory connections.
-
----
 
 ## 3. Data Requirements Data Requirements
 
@@ -182,8 +163,6 @@ X: [n_samples, n_time_steps, n_features]
 * **n\_features**: Number of parallel channels (e.g., EEG electrodes).
 
 Targets (**y**) can be any 1D array of length `n_samples` for classification/regression.
-
----
 
 ## 4. Step‑by‑Step Quick Start
 
