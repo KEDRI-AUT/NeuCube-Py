@@ -1,6 +1,6 @@
 # NeuCube‑Py Tutorial
 
-This tutorial provides a introduction to NeuCube‑Py, a Python library for simulating spiking reservoirs. You’ll learn:
+This tutorial provides a comprehensive guide to NeuCube‑Py, a Python library for spiking‑reservoir computing on time‑series data. You’ll learn:
 
 1. **Overview & Purpose**
 2. **Module Breakdown & Parameters**
@@ -55,13 +55,11 @@ Although illustrated for time-series, any data modality (images, audio, video) c
 
 ---
 
-## 3. Module Breakdown & Parameters Module Breakdown & Parameters
-
-## 2. Module Breakdown & Parameters
+## 3. Module Breakdown & Parameters
 
 In this section, we break down each core module of NeuCube-Py, describe its purpose, key components, and list all configurable parameters.
 
-### 2.1 Encoders
+### 3.1 Encoders
 
 Transform continuous-valued time series into spike trains.
 
@@ -77,7 +75,7 @@ Transform continuous-valued time series into spike trains.
 
 ---
 
-### 2.2 Reservoir
+### 3.2 Reservoir
 
 A 3D spiking-neuron network with recurrent small-world connectivity.
 
@@ -99,7 +97,7 @@ A 3D spiking-neuron network with recurrent small-world connectivity.
 
 ---
 
-### 2.3 Topology
+### 3.3 Topology
 
 Functions for generating reservoir and input connectivity.
 
@@ -116,7 +114,7 @@ Functions for generating reservoir and input connectivity.
 
 ---
 
-### 2.4 Samplers
+### 3.4 Samplers
 
 Summarize reservoir spike trains into fixed-length state vectors.
 
@@ -140,7 +138,7 @@ Summarize reservoir spike trains into fixed-length state vectors.
 
 ---
 
-### 2.5 Pipeline
+### 3.5 Pipeline
 
 High‑level API combining reservoir, sampler, and sklearn classifier.
 
@@ -158,7 +156,7 @@ High‑level API combining reservoir, sampler, and sklearn classifier.
 
 ---
 
-### 2.6 Utils & Visualization
+### 3.6 Utils & Visualization
 
 Helper functions for inspection and plotting.
 
@@ -307,4 +305,4 @@ This routine:
 
 ---
 
-Feel free to customize encoders, connectivity, samplers, and classifiers to suit your domain-specific data and tasks!!
+**Happy spiking!** Feel free to customize encoders, connectivity, samplers, and classifiers to suit your domain-specific data and tasks.
