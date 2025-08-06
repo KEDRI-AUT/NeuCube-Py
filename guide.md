@@ -3,10 +3,11 @@
 This tutorial provides a comprehensive guide to NeuCube‑Py, a Python library for spiking‑reservoir computing on time‑series data. You’ll learn:
 
 1. **Overview & Purpose**
-2. **Module Breakdown & Parameters**
-3. **Data Requirements**
-4. **Step‑by‑Step Quick Start**
-5. **Cross‑Validation & Hyperparameter Optimization**
+2. **Typical Workflow**
+3. **Module Breakdown & Parameters**
+4. **Data Requirements**
+5. **Step‑by‑Step Quick Start**
+6. **Cross‑Validation & Hyperparameter Optimization**
 
 
 ## 1. Overview & Purpose
